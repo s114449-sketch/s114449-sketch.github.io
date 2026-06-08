@@ -1,114 +1,229 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<meta charset="UTF-8">
+    <title>Anime Tracker</title>
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Anime Tracker</title>
-
-<link
-rel="stylesheet"
-href="style.css">
-
+    <link
+        rel="stylesheet"
+        href="style.css">
 </head>
 
 <body>
 
-<header>
+    <!-- Header -->
 
-<h1>Anime Tracker</h1>
+    <header class="header">
 
-<div id="userArea">
+        <div class="logo">
 
-<button id="loginBtn">
-Google登入
-</button>
+            <h1>🎌 Anime Tracker</h1>
 
-<div id="userInfo"></div>
+        </div>
 
-</div>
+        <div class="header-right">
 
-</header>
+            <button
+                id="themeToggle"
+                class="theme-btn">
 
-<section class="search-section">
+                🌙 深色模式
 
-<input
-id="searchInput"
-type="text"
-placeholder="搜尋動漫...">
+            </button>
 
-<button id="searchBtn">
-搜尋
-</button>
+            <button
+                id="loginBtn"
+                class="login-btn">
 
-</section>
+                Google 登入
 
-<section>
+            </button>
 
-<h2>📊 我的統計</h2>
+            <div
+                id="userInfo"
+                class="user-info">
 
-<div id="stats">
+            </div>
 
-<div>❤️ 收藏：0</div>
+        </div>
 
-<div>📌 想看：0</div>
+    </header>
 
-<div>📺 追番中：0</div>
+    <!-- Search -->
 
-<div>✅ 已看完：0</div>
+    <section class="search-section">
 
-<div>❌ 棄坑：0</div>
+        <h2>🔍 搜尋動漫</h2>
 
-<div>⭐ 平均評分：0</div>
+        <div class="search-box">
 
-</div>
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="輸入動漫名稱...">
 
-</section>
+            <button
+                id="searchBtn">
 
-<section>
+                搜尋
 
-<h2>🏷️ 標籤篩選</h2>
+            </button>
 
-<select id="filterTag">
+        </div>
 
-<option value="">
-全部
-</option>
+        <div
+            id="searchHistory"
+            class="search-history">
 
-</select>
+        </div>
 
-</section>
+        <div
+            id="searchResult"
+            class="anime-grid">
 
-<section>
+        </div>
 
-<h2>🔍 搜尋結果</h2>
+    </section>
 
-<div
-id="searchResult"
-class="anime-grid">
-</div>
+    <!-- Statistics -->
 
-</section>
+    <section class="stats-section">
 
-<section>
+        <h2>📊 我的統計</h2>
 
-<h2>📺 我的動漫庫</h2>
+        <div
+            id="stats"
+            class="stats-grid">
 
-<div
-id="animeLibrary"
-class="anime-grid">
-</div>
+            <div class="stat-card">
+                ❤️ 收藏：0
+            </div>
 
-</section>
+            <div class="stat-card">
+                📌 想看：0
+            </div>
 
-<script
-type="module"
-src="main.js">
-</script>
+            <div class="stat-card">
+                📺 追番中：0
+            </div>
+
+            <div class="stat-card">
+                ✅ 已看完：0
+            </div>
+
+            <div class="stat-card">
+                ❌ 棄坑：0
+            </div>
+
+            <div class="stat-card">
+                ⭐ 平均評分：0
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Filter -->
+
+    <section>
+
+        <h2>🏷️ 標籤篩選</h2>
+
+        <select id="filterTag">
+
+            <option value="">
+                全部
+            </option>
+
+        </select>
+
+    </section>
+
+    <!-- Library -->
+
+    <section>
+
+        <h2>📌 想看</h2>
+
+        <div
+            id="planList"
+            class="anime-grid">
+
+        </div>
+
+    </section>
+
+    <section>
+
+        <h2>📺 追番中</h2>
+
+        <div
+            id="watchingList"
+            class="anime-grid">
+
+        </div>
+
+    </section>
+
+    <section>
+
+        <h2>❤️ 收藏</h2>
+
+        <div
+            id="favoriteList"
+            class="anime-grid">
+
+        </div>
+
+    </section>
+
+    <section>
+
+        <h2>✅ 已看完</h2>
+
+        <div
+            id="completedList"
+            class="anime-grid">
+
+        </div>
+
+    </section>
+
+    <section>
+
+        <h2>❌ 棄坑</h2>
+
+        <div
+            id="droppedList"
+            class="anime-grid">
+
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+
+    <footer>
+
+        <p>
+            Anime Tracker © 2025
+        </p>
+
+    </footer>
+
+    <script
+        type="module"
+        src="firebaseConfig.js">
+    </script>
+
+    <script
+        type="module"
+        src="main.js">
+    </script>
 
 </body>
 </html>
