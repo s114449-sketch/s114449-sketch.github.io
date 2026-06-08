@@ -1,46 +1,114 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anime Tracker</title>
-  <link rel="stylesheet" href="style.css">
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Anime Tracker</title>
+
+<link
+rel="stylesheet"
+href="style.css">
+
 </head>
+
 <body>
 
-  <!-- 登入 / 註冊 -->
-  <div id="authSection">
-    <h2>登入 Anime Tracker</h2>
-    <input id="username" placeholder="帳號">
-    <input id="password" type="password" placeholder="密碼">
-    <div class="auth-buttons">
-      <button id="registerBtn">註冊</button>
-      <button id="loginBtn">登入</button>
-    </div>
-  </div>
+<header>
 
-  <!-- 主程式區域 -->
-  <div id="mainApp" style="display:none;">
-    <header>
-      <h1>📺 Anime Tracker</h1>
-      <button id="toggleTheme">切換深色模式</button>
-      <button id="logoutBtn">登出</button>
-    </header>
+<h1>Anime Tracker</h1>
 
-    <section class="search-section">
-      <input type="text" id="animeName" placeholder="輸入動漫名稱">
-      <button id="searchBtn">搜尋</button>
-      <button id="seasonBtn">本季新番</button>
-    </section>
+<div id="userArea">
 
-    <section id="result"></section>
+<button id="loginBtn">
+Google登入
+</button>
 
-    <section class="saved-list">
-      <h2>⭐ 我的清單</h2>
-      <div id="savedAnime"></div>
-    </section>
-  </div>
+<div id="userInfo"></div>
 
-  <script type="module" src="js/main.js"></script>
+</div>
+
+</header>
+
+<section class="search-section">
+
+<input
+id="searchInput"
+type="text"
+placeholder="搜尋動漫...">
+
+<button id="searchBtn">
+搜尋
+</button>
+
+</section>
+
+<section>
+
+<h2>📊 我的統計</h2>
+
+<div id="stats">
+
+<div>❤️ 收藏：0</div>
+
+<div>📌 想看：0</div>
+
+<div>📺 追番中：0</div>
+
+<div>✅ 已看完：0</div>
+
+<div>❌ 棄坑：0</div>
+
+<div>⭐ 平均評分：0</div>
+
+</div>
+
+</section>
+
+<section>
+
+<h2>🏷️ 標籤篩選</h2>
+
+<select id="filterTag">
+
+<option value="">
+全部
+</option>
+
+</select>
+
+</section>
+
+<section>
+
+<h2>🔍 搜尋結果</h2>
+
+<div
+id="searchResult"
+class="anime-grid">
+</div>
+
+</section>
+
+<section>
+
+<h2>📺 我的動漫庫</h2>
+
+<div
+id="animeLibrary"
+class="anime-grid">
+</div>
+
+</section>
+
+<script
+type="module"
+src="main.js">
+</script>
+
 </body>
 </html>
