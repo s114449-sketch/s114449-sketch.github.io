@@ -1,7 +1,6 @@
-import {
-    auth
-}
-from "./firebaseConfig.js";
+// =====================
+// Anime Tracker
+// =====================
 
 let animeList =
 JSON.parse(
@@ -10,37 +9,147 @@ localStorage.getItem(
 )
 ) || [];
 
+let searchHistory =
+JSON.parse(
+localStorage.getItem(
+"searchHistory"
+)
+) || [];
+
 const TAGS = [
 
 "戀愛",
 "校園",
+
 "異世界",
 "奇幻",
+
 "冒險",
 "戰鬥",
+
 "推理",
 "懸疑",
+
 "日常",
 "治癒",
+
 "音樂",
 "運動"
 
 ];
 
-loadTags();
+const STATUS = [
 
-renderLibrary();
+"收藏",
+"想看",
+"追番中",
+"已看完",
+"棄坑"
+
+];
+
+// =====================
+// Init
+// =====================
 
 document
-.getElementById(
-"searchBtn"
-)
 .addEventListener(
-"click",
-searchAnime
+"DOMContentLoaded",
+init
 );
 
-async function searchAnime(){
+function init(){
+
+    initTheme();
+
+    loadTags();
+
+    renderLibrary();
+
+    renderSearchHistory();
+
+    updateStats();
+
+    bindEvents();
+}
+
+// =====================
+// Event Binding
+// =====================
+
+function bindEvents(){
+
+    document
+    .getElementById(
+    "searchBtn"
+    )
+    .addEventListener(
+    "click",
+    handleSearch
+    );
+
+    document
+    .getElementById(
+    "themeToggle"
+    )
+    .addEventListener(
+    "click",
+    toggleTheme
+    );
+}
+
+// =====================
+// Theme
+// =====================
+
+function initTheme(){
+
+    const theme =
+    localStorage.getItem(
+    "theme"
+    );
+
+    if(theme === "dark"){
+
+        document.body
+        .classList.add(
+        "dark"
+        );
+
+    }
+}
+
+function toggleTheme(){
+
+    document.body
+    .classList.toggle(
+    "dark"
+    );
+
+    const isDark =
+    document.body
+    .classList.contains(
+    "dark"
+    );
+
+    localStorage.setItem(
+
+    "theme",
+
+    isDark
+    ?
+    "dark"
+    :
+    "light"
+
+    );
+}
+
+// =====================
+// Search Anime
+// =====================
+
+async function handleSearch(){
 
     const keyword =
     document
@@ -53,14 +162,24 @@ async function searchAnime(){
     if(!keyword)
     return;
 
+    saveSearchHistory(
+    keyword
+    );
+
     const query = `
     query ($search:String){
 
-      Page(page:1,perPage:20){
+      Page(
+        page:1,
+        perPage:20
+      ){
 
         media(
+
           search:$search,
+
           type:ANIME
+
         ){
 
           id
@@ -69,49 +188,75 @@ async function searchAnime(){
 
           averageScore
 
+          genres
+
           title{
+
             native
+
             romaji
+
           }
 
           coverImage{
+
             large
+
           }
         }
       }
     }
     `;
 
-    const response =
-    await fetch(
-    "https://graphql.anilist.co",
-    {
+    try{
 
-      method:"POST",
+        const response =
+        await fetch(
+        "https://graphql.anilist.co",
+        {
 
-      headers:{
-      "Content-Type":
-      "application/json"
-      },
+            method:"POST",
 
-      body:JSON.stringify({
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
 
-        query,
+            body:JSON.stringify({
 
-        variables:{
-          search:keyword
-        }
+                query,
 
-      })
-    });
+                variables:{
+                    search:keyword
+                }
 
-    const result =
-    await response.json();
+            })
 
-    renderSearchResult(
-    result.data.Page.media
-    );
+        });
+
+        const data =
+        await response.json();
+
+        renderSearchResult(
+
+        data.data.Page.media
+
+        );
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(
+        "搜尋失敗"
+        );
+
+    }
 }
+// =====================
+// Search Result
+// =====================
 
 function renderSearchResult(
 animeArray
@@ -123,215 +268,698 @@ animeArray
     "searchResult"
     );
 
-    container.innerHTML="";
+    container.innerHTML = "";
 
     animeArray.forEach(
-    anime=>{
+    anime => {
 
-      container.innerHTML += `
-      <div class="anime-card">
+        container.innerHTML += `
 
-        <img src="${anime.coverImage.large}">
+        <div class="anime-card">
 
-        <h3>
-        ${
-          anime.title.native
-          ||
-          anime.title.romaji
-        }
-        </h3>
+            <img
+            src="${anime.coverImage.large}">
 
-        <p>
-        📺
-        ${anime.episodes || "?"}
-        集
-        </p>
+            <h3>
 
-        <p>
-        ⭐
-        ${
-          anime.averageScore
-          || "-"
-        }
-        </p>
+            ${
+            anime.title.native
+            ||
+            anime.title.romaji
+            }
 
-        <button
-        onclick="addAnime(
-        ${anime.id},
-        '${anime.title.native || anime.title.romaji}',
-        '${anime.coverImage.large}',
-        ${anime.episodes || 0}
-        )">
+            </h3>
 
-        加入收藏
+            <p>
 
-        </button>
+            📺
+            ${anime.episodes || "?"}
+            集
 
-      </div>
-      `;
+            </p>
+
+            <p>
+
+            ⭐
+            ${
+            anime.averageScore
+            || "-"
+            }
+
+            </p>
+
+            <button
+
+            class="btn-primary"
+
+            onclick="
+            addAnime(
+            ${anime.id},
+            '${anime.title.native || anime.title.romaji}',
+            '${anime.coverImage.large}',
+            ${anime.episodes || 0}
+            )">
+
+            加入清單
+
+            </button>
+
+        </div>
+
+        `;
     });
 }
 
+// =====================
+// Add Anime
+// =====================
+
 window.addAnime =
 function(
+
 id,
 title,
 image,
 episodes
+
 ){
 
-animeList.push({
+    const exists =
+    animeList.find(
+    anime =>
+    anime.id === id
+    );
 
-id,
+    if(exists){
 
-title,
+        alert(
+        "已存在"
+        );
 
-image,
+        return;
+    }
 
-episodes,
+    animeList.push({
 
-currentEpisode:0,
+        id,
 
-score:0,
+        title,
 
-status:"收藏",
+        image,
 
-tags:[]
-});
+        episodes,
 
-saveData();
+        currentEpisode:0,
 
-renderLibrary();
+        score:0,
+
+        status:"想看",
+
+        tags:[]
+
+    });
+
+    saveData();
+
+    renderLibrary();
+
+    updateStats();
 };
+// =====================
+// LocalStorage
+// =====================
+
+function saveData(){
+
+    localStorage.setItem(
+
+    "animeList",
+
+    JSON.stringify(
+    animeList
+    )
+
+    );
+}
+
+// =====================
+// Search History
+// =====================
+
+function saveSearchHistory(
+keyword
+){
+
+    searchHistory =
+    searchHistory.filter(
+    item =>
+    item !== keyword
+    );
+
+    searchHistory.unshift(
+    keyword
+    );
+
+    searchHistory =
+    searchHistory.slice(
+    0,
+    10
+    );
+
+    localStorage.setItem(
+
+    "searchHistory",
+
+    JSON.stringify(
+    searchHistory
+    )
+
+    );
+
+    renderSearchHistory();
+}
+
+function renderSearchHistory(){
+
+    const container =
+    document
+    .getElementById(
+    "searchHistory"
+    );
+
+    container.innerHTML = "";
+
+    searchHistory.forEach(
+    keyword=>{
+
+        container.innerHTML += `
+        <div
+
+        class="history-item"
+
+        onclick="
+        quickSearch(
+        '${keyword}'
+        )">
+
+        ${keyword}
+
+        </div>
+        `;
+    });
+}
+
+window.quickSearch =
+function(keyword){
+
+    document
+    .getElementById(
+    "searchInput"
+    )
+    .value =
+    keyword;
+
+    handleSearch();
+};
+// =====================
+// Render Library
+// =====================
 
 function renderLibrary(){
 
-const container =
-document
-.getElementById(
-"animeLibrary"
-);
+    const sections = {
 
-container.innerHTML="";
+        "想看":
+        document.getElementById(
+        "planList"
+        ),
 
-animeList.forEach(
-anime=>{
+        "追番中":
+        document.getElementById(
+        "watchingList"
+        ),
 
-const percent =
-anime.episodes
-?
-anime.currentEpisode
-/
-anime.episodes
-*
-100
-:
-0;
+        "收藏":
+        document.getElementById(
+        "favoriteList"
+        ),
 
-container.innerHTML += `
-<div class="anime-card">
+        "已看完":
+        document.getElementById(
+        "completedList"
+        ),
 
-<img src="${anime.image}">
+        "棄坑":
+        document.getElementById(
+        "droppedList"
+        )
+    };
 
-<h3>${anime.title}</h3>
+    Object.values(
+    sections
+    ).forEach(
+    section =>
+    section.innerHTML = ""
+    );
 
-<p>
-${anime.currentEpisode}
-/
-${anime.episodes}
-集
-</p>
+    animeList.forEach(
+    anime=>{
 
-<div class="progress">
+        const target =
+        sections[
+        anime.status
+        ];
 
-<div
-class="progress-bar"
-style="
-width:${percent}%">
-</div>
+        if(target){
 
-</div>
+            target.innerHTML +=
+            createAnimeCard(
+            anime
+            );
 
-<p>
-${anime.status}
-</p>
+        }
 
-<div class="card-buttons">
-
-<button
-onclick="
-increaseEpisode(
-${anime.id}
-)">
-
-+1集
-
-</button>
-
-</div>
-
-</div>
-`;
-});
+    });
 }
+
+// =====================
+// Card
+// =====================
+
+function createAnimeCard(
+anime
+){
+
+    const percent =
+    anime.episodes > 0
+    ?
+    (
+        anime.currentEpisode
+        /
+        anime.episodes
+    ) * 100
+    :
+    0;
+
+    return `
+
+    <div class="anime-card">
+
+        <img
+        src="${anime.image}">
+
+        <h3>
+        ${anime.title}
+        </h3>
+
+        <p>
+        📺
+        ${anime.currentEpisode}
+        /
+        ${anime.episodes || "?"}
+        集
+        </p>
+
+        <div class="progress">
+
+            <div
+            class="progress-bar"
+            style="
+            width:${percent}%">
+            </div>
+
+        </div>
+
+        <div class="rating">
+
+            ⭐ 評分：
+
+            <input
+
+            type="number"
+
+            min="0"
+
+            max="10"
+
+            value="${anime.score}"
+
+            onchange="
+            updateScore(
+            ${anime.id},
+            this.value
+            )">
+
+        </div>
+
+        <div class="tag-container">
+
+        ${
+        anime.tags
+        .map(
+        tag =>
+        `<span class="tag">
+        ${tag}
+        </span>`
+        )
+        .join("")
+        }
+
+        </div>
+
+        <select
+
+        class="status-select"
+
+        onchange="
+        changeStatus(
+        ${anime.id},
+        this.value
+        )">
+
+        ${STATUS.map(
+        status =>
+
+        `
+        <option
+
+        value="${status}"
+
+        ${
+        anime.status === status
+        ?
+        "selected"
+        :
+        ""
+        }
+
+        >
+
+        ${status}
+
+        </option>
+        `
+        ).join("")
+        }
+
+        </select>
+
+        <div class="card-buttons">
+
+            <button
+
+            class="btn-success"
+
+            onclick="
+            increaseEpisode(
+            ${anime.id}
+            )">
+
+            +1 集
+
+            </button>
+
+            <button
+
+            class="btn-danger"
+
+            onclick="
+            removeAnime(
+            ${anime.id}
+            )">
+
+            刪除
+
+            </button>
+
+        </div>
+
+    </div>
+    `;
+}
+// =====================
+// Status
+// =====================
+
+window.changeStatus =
+function(
+id,
+status
+){
+
+    const anime =
+    animeList.find(
+    anime =>
+    anime.id === id
+    );
+
+    if(!anime)
+    return;
+
+    anime.status =
+    status;
+
+    saveData();
+
+    renderLibrary();
+
+    updateStats();
+};
+
+// =====================
+// Episode
+// =====================
 
 window.increaseEpisode =
 function(id){
 
-const anime =
-animeList.find(
-a=>a.id===id
-);
+    const anime =
+    animeList.find(
+    anime =>
+    anime.id === id
+    );
 
-anime.currentEpisode++;
+    if(!anime)
+    return;
 
-if(
-anime.currentEpisode
->=
-anime.episodes
-&&
-anime.episodes > 0
+    anime.currentEpisode++;
+
+    if(
+    anime.episodes > 0
+    &&
+    anime.currentEpisode >= anime.episodes
+    ){
+
+        anime.status =
+        "已看完";
+    }
+
+    saveData();
+
+    renderLibrary();
+
+    updateStats();
+};
+// =====================
+// Score
+// =====================
+
+window.updateScore =
+function(
+id,
+score
 ){
 
-anime.status =
-"已看完";
+    const anime =
+    animeList.find(
+    anime =>
+    anime.id === id
+    );
 
-}
+    if(!anime)
+    return;
 
-saveData();
+    anime.score =
+    Number(score);
 
-renderLibrary();
+    saveData();
+
+    updateStats();
 };
 
-function saveData(){
+// =====================
+// Delete
+// =====================
 
-localStorage.setItem(
+window.removeAnime =
+function(id){
 
-"animeList",
+    const result =
+    confirm(
+    "確定刪除？"
+    );
 
-JSON.stringify(
-animeList
-)
+    if(!result)
+    return;
 
-);
-}
+    animeList =
+    animeList.filter(
+    anime =>
+    anime.id !== id
+    );
+
+    saveData();
+
+    renderLibrary();
+
+    updateStats();
+};
+// =====================
+// Tags
+// =====================
 
 function loadTags(){
 
-const select =
-document.getElementById(
-"filterTag"
-);
+    const select =
+    document
+    .getElementById(
+    "filterTag"
+    );
 
-TAGS.forEach(
-tag=>{
+    TAGS.forEach(
+    tag=>{
 
-select.innerHTML +=
-`
-<option
-value="${tag}">
-${tag}
-</option>
-`;
-});
+        select.innerHTML +=
+        `
+        <option
+        value="${tag}">
+        ${tag}
+        </option>
+        `;
+    });
+
+    select.addEventListener(
+    "change",
+    filterByTag
+    );
+}
+
+function filterByTag(){
+
+    const selected =
+    document
+    .getElementById(
+    "filterTag"
+    )
+    .value;
+
+    if(!selected){
+
+        renderLibrary();
+
+        return;
+    }
+
+    const filtered =
+    animeList.filter(
+    anime =>
+    anime.tags.includes(
+    selected
+    )
+    );
+
+    console.log(
+    filtered
+    );
+}
+// =====================
+// Statistics
+// =====================
+
+function updateStats(){
+
+    const stats = {
+
+        收藏:0,
+
+        想看:0,
+
+        追番中:0,
+
+        已看完:0,
+
+        棄坑:0
+    };
+
+    let totalScore = 0;
+
+    let scoreCount = 0;
+
+    animeList.forEach(
+    anime=>{
+
+        stats[
+        anime.status
+        ]++;
+
+        if(
+        anime.score > 0
+        ){
+
+            totalScore +=
+            anime.score;
+
+            scoreCount++;
+        }
+
+    });
+
+    const averageScore =
+    scoreCount > 0
+    ?
+    (
+        totalScore
+        /
+        scoreCount
+    ).toFixed(1)
+    :
+    0;
+
+    document
+    .getElementById(
+    "stats"
+    )
+    .innerHTML = `
+
+    <div class="stat-card">
+    ❤️ 收藏：
+    ${stats["收藏"]}
+    </div>
+
+    <div class="stat-card">
+    📌 想看：
+    ${stats["想看"]}
+    </div>
+
+    <div class="stat-card">
+    📺 追番中：
+    ${stats["追番中"]}
+    </div>
+
+    <div class="stat-card">
+    ✅ 已看完：
+    ${stats["已看完"]}
+    </div>
+
+    <div class="stat-card">
+    ❌ 棄坑：
+    ${stats["棄坑"]}
+    </div>
+
+    <div class="stat-card">
+    ⭐ 平均評分：
+    ${averageScore}
+    </div>
+
+    `;
 }
