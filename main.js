@@ -613,18 +613,60 @@ anime
         </div>
 
         <div class="tag-container">
-
-        ${
-        anime.tags
-        .map(
-        tag =>
-        `<span class="tag">
+        
+        ${anime.tags.map(tag =>
+        
+        `
+        <span class="tag">
+        
         ${tag}
-        </span>`
-        )
-        .join("")
-        }
-
+        
+        <button
+        class="tag-remove"
+        onclick="
+        removeTag(
+        ${anime.id},
+        '${tag}'
+        )">
+        ×
+        </button>
+        
+        </span>
+        `
+        
+        ).join("")}
+        
+        </div>
+        
+        <div class="tag-editor">
+        
+        <select
+        id="tag-select-${anime.id}">
+        
+        <option value="">
+        選擇標籤
+        </option>
+        
+        ${TAGS.map(tag =>
+        
+        `
+        <option value="${tag}">
+        ${tag}
+        </option>
+        `
+        
+        ).join("")}
+        
+        </select>
+        
+        <button
+        onclick="
+        addTag(
+        ${anime.id}
+        )">
+        新增
+        </button>
+        
         </div>
 
         <select
@@ -860,23 +902,131 @@ function filterByTag(){
         return;
     }
 
-    const filtered =
-    animeList.filter(
+    function filterByTag(){
+
+    const selected =
+    document
+    .getElementById(
+    "filterTag"
+    )
+    .value;
+
+    if(!selected){
+
+        renderLibrary();
+
+        return;
+    }
+
+    const sections = {
+
+        "想看":
+        document.getElementById("planList"),
+
+        "追番中":
+        document.getElementById("watchingList"),
+
+        "收藏":
+        document.getElementById("favoriteList"),
+
+        "已看完":
+        document.getElementById("completedList"),
+
+        "棄坑":
+        document.getElementById("droppedList")
+
+    };
+
+    Object.values(
+    sections
+    ).forEach(
+    section =>
+    section.innerHTML = ""
+    );
+
+    animeList
+    .filter(
     anime =>
     anime.tags.includes(
     selected
     )
-    );
+    )
+    .forEach(
+    anime => {
 
-    console.log(
-    filtered
-    );
+        sections[
+        anime.status
+        ].innerHTML +=
+        createAnimeCard(
+        anime
+        );
+
+    });
+
+}
 }
 // =====================
 // Statistics
 // =====================
 
 function updateStats(){
+    window.addTag =
+function(id){
+
+    const anime =
+    animeList.find(
+    anime =>
+    anime.id === id
+    );
+
+    const select =
+    document.getElementById(
+    `tag-select-${id}`
+    );
+
+    const tag =
+    select.value;
+
+    if(!tag)
+    return;
+
+    if(
+    anime.tags.includes(
+    tag
+    )
+    )
+    return;
+
+    anime.tags.push(
+    tag
+    );
+
+    saveData();
+
+    renderLibrary();
+};
+    window.removeTag =
+function(
+id,
+tag
+){
+
+    const anime =
+    animeList.find(
+    anime =>
+    anime.id === id
+    );
+
+    anime.tags =
+    anime.tags.filter(
+    t =>
+    t !== tag
+    );
+
+    saveData();
+
+    renderLibrary();
+};
 
     const stats = {
 
