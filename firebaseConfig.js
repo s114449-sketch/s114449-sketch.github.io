@@ -1,49 +1,70 @@
-// Firebase 設定
-
 import { initializeApp }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-    getAuth
+
+getAuth,
+
+GoogleAuthProvider,
+
+signInWithPopup,
+
+signOut,
+
+onAuthStateChanged
+
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-    getFirestore
+
+getFirestore
+
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 
-    apiKey:
-    "YOUR_API_KEY",
+    apiKey:"YOUR_API_KEY",
 
-    authDomain:
-    "YOUR_PROJECT.firebaseapp.com",
+    authDomain:"YOUR_PROJECT.firebaseapp.com",
 
-    projectId:
-    "YOUR_PROJECT_ID",
+    projectId:"YOUR_PROJECT_ID",
 
-    storageBucket:
-    "YOUR_PROJECT.appspot.com",
+    storageBucket:"YOUR_PROJECT.appspot.com",
 
-    messagingSenderId:
-    "XXXXXXXX",
+    messagingSenderId:"XXXXXXXX",
 
-    appId:
-    "XXXXXXXX"
+    appId:"XXXXXXXX"
+
 };
 
-export const app =
+const app =
 initializeApp(
 firebaseConfig
 );
 
-export const auth =
+const auth =
 getAuth(app);
 
-export const db =
+const db =
 getFirestore(app);
+
+export {
+
+auth,
+
+db,
+
+GoogleAuthProvider,
+
+signInWithPopup,
+
+signOut,
+
+onAuthStateChanged
+
+};
